@@ -2,8 +2,8 @@ package jp.ne.motoki.android.bookshelfmanager.test;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 
-import jp.ne.motoki.android.bookshelfmanager.Database;
 import jp.ne.motoki.android.bookshelfmanager.MainActivity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -14,12 +14,18 @@ import android.util.Log;
 public class TestMainActivity extends
         ActivityInstrumentationTestCase2<MainActivity> {
     
+    private static final String TAG = "BM Test";
+    
     public TestMainActivity() throws Exception {
         super("jp.ne.motoki.android.bookshelfmanager", MainActivity.class);
         
-        Class<?> classDatabase =
-            Class.forName("jp.ne.motoki.android.bookshelfmanager.Database");
+        Class<?> classContents =
+            Class.forName("jp.ne.motoki.android.bookshelfmanager.Database$Contents");
         
+        for (Field field : classContents.getDeclaredFields()) {
+            field.setAccessible(true);
+            Log.d("test", (String) field.get(null));
+        }
     }
 
     @Override
