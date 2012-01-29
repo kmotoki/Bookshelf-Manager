@@ -15,7 +15,5 @@ public class Log {
 
     public static void error(String message, Throwable tr) {
         android.util.Log.e(TAG, message, tr);
-        // TODO Auto-generated method stub
-        
     }
 }

@@ -3,13 +3,12 @@ package jp.ne.motoki.android.bookshelfmanager;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 
-import jp.ne.motoki.android.bookshelfmanager.Database.Contents;
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,23 +22,22 @@ public class MainActivity extends Activity {
     private static final String EXTRA_SCAN_RESULT = "SCAN_RESULT";
     private static final String EXTRA_SCAN_RESULT_FORMAT = "SCAN_RESULT_FORMAT";
     
-    private static final int CALL_BARCODE_APP = 1;
+    private static final int REQUEST_CODE = 1;
     private static final int RESULT_SCAN_SUCCESS = -1;
+
+    private static final Intent INTENT_BARCODE_READER = new Intent(NAME_BARCODE_APP);
     
-    private static final String TEST_DATA = "test_data.csv";
+    private static final String URL_SEARCH_CONTENT = "https://www.googleapis.com/books/v1/volumes?q=%s";
+    
+    static {
+        INTENT_BARCODE_READER.putExtra("SCAN_MODE", "ONE_D_MODE");
+    }
     
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
-        Intent intent = getIntent();
-        if (intent.getData() == null) {
-            intent.setData(Database.URI);
-        }
-        
-        insertTestDataIfExists();
     }
 
     @Override
@@ -55,10 +53,26 @@ public class MainActivity extends Activity {
         
         Log.debug("requestCode = " + requestCode);
         Log.debug("resultCode = " + resultCode);
-        if (requestCode == CALL_BARCODE_APP && resultCode == RESULT_SCAN_SUCCESS) {
+        if (requestCode == REQUEST_CODE && resultCode == RESULT_SCAN_SUCCESS) {
             Bundle bundle = data.getExtras();
             Log.debug(EXTRA_SCAN_RESULT + " = " + bundle.getString(EXTRA_SCAN_RESULT));
             Log.debug(EXTRA_SCAN_RESULT_FORMAT + " = " + bundle.getString(EXTRA_SCAN_RESULT_FORMAT));
+            
+            try {
+                URL url = new URL(String.format(URL_SEARCH_CONTENT, bundle.getString(EXTRA_SCAN_RESULT)));
+                URLConnection urlConnection = url.openConnection();
+                BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                String line = null;
+                while((line = br.readLine()) != null) {
+                    Log.debug(line);
+                }
+            } catch (MalformedURLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
 
@@ -85,9 +99,7 @@ public class MainActivity extends Activity {
     }
     
     private void onBarcodeOptionSelected() {
-        Intent intent = new Intent(NAME_BARCODE_APP);
-        intent.putExtra("SCAN_MODE", "ONE_D_MODE");
-        startActivityForResult(intent, CALL_BARCODE_APP);
+        startActivityForResult(INTENT_BARCODE_READER, REQUEST_CODE);
     }
     
     private void onSettingsOptionSelected() {
@@ -100,27 +112,5 @@ public class MainActivity extends Activity {
     
     private void onAboutThisAppOptionSelected() {
         Toast.makeText(this, "onAboutThisAppOptionSelected", Toast.LENGTH_SHORT).show();
-    }
-    
-    private void insertTestDataIfExists() {
-        AssetManager manager = getAssets();
-        try {
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(manager.open(TEST_DATA)));
-            
-            Log.debug("Test data exists");
-            
-            ContentResolver resolver = getContentResolver();
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                String[] data = line.split(",");
-                ContentValues values = new ContentValues();
-                values.put(Contents.ID, data[0]);
-                values.put(Contents.ISBN, data[1]);
-                resolver.insert(Database.URI, values);
-            }
-        } catch (IOException e) {
-            Log.warn("There is no test data");
-        }
     }
 }

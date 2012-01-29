@@ -1,6 +1,6 @@
 package jp.ne.motoki.android.bookshelfmanager;
 
-import jp.ne.motoki.android.bookshelfmanager.Database.Contents;
+import jp.ne.motoki.android.bookshelfmanager.DatabaseHelper.Contents;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
