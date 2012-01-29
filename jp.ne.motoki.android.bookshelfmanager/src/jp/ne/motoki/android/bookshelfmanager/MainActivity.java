@@ -1,12 +1,6 @@
 package jp.ne.motoki.android.bookshelfmanager;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-
+import static jp.ne.motoki.android.bookshelfmanager.Constants.ISBN;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,8 +20,6 @@ public class MainActivity extends Activity {
     private static final int RESULT_SCAN_SUCCESS = -1;
 
     private static final Intent INTENT_BARCODE_READER = new Intent(NAME_BARCODE_APP);
-    
-    private static final String URL_SEARCH_CONTENT = "https://www.googleapis.com/books/v1/volumes?q=%s";
     
     static {
         INTENT_BARCODE_READER.putExtra("SCAN_MODE", "ONE_D_MODE");
@@ -55,24 +47,15 @@ public class MainActivity extends Activity {
         Log.debug("resultCode = " + resultCode);
         if (requestCode == REQUEST_CODE && resultCode == RESULT_SCAN_SUCCESS) {
             Bundle bundle = data.getExtras();
-            Log.debug(EXTRA_SCAN_RESULT + " = " + bundle.getString(EXTRA_SCAN_RESULT));
-            Log.debug(EXTRA_SCAN_RESULT_FORMAT + " = " + bundle.getString(EXTRA_SCAN_RESULT_FORMAT));
+            String isbn = bundle.getString(EXTRA_SCAN_RESULT);
+            Log.debug(EXTRA_SCAN_RESULT + " = " + isbn);
+            Log.debug(EXTRA_SCAN_RESULT_FORMAT + " = " +
+                    bundle.getString(EXTRA_SCAN_RESULT_FORMAT));
             
-            try {
-                URL url = new URL(String.format(URL_SEARCH_CONTENT, bundle.getString(EXTRA_SCAN_RESULT)));
-                URLConnection urlConnection = url.openConnection();
-                BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                String line = null;
-                while((line = br.readLine()) != null) {
-                    Log.debug(line);
-                }
-            } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            Intent callDetailActivity =
+                new Intent(getApplicationContext(), DetailActivity.class);
+            callDetailActivity.putExtra(ISBN, isbn);
+            startActivity(callDetailActivity);
         }
     }
 
