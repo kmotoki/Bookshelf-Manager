@@ -1,0 +1,6 @@
+#Sat Jan 21 22:13:26 JST 2012
+include.rule.names=false
+include.module.ids=false
+eclipse.preferences.version=1
+marker.amount.limit=100
+limit.markers.per.resource=false

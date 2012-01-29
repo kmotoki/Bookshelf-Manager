@@ -1,0 +1,35 @@
+package jp.ne.motoki.android.bookshelfmanager.test;
+
+import java.lang.reflect.Field;
+
+import jp.ne.motoki.android.bookshelfmanager.Constants;
+import jp.ne.motoki.android.bookshelfmanager.DetailActivity;
+import android.content.Intent;
+import android.test.ActivityInstrumentationTestCase2;
+
+public class TestDetailActivity extends ActivityInstrumentationTestCase2<DetailActivity> {
+    
+    private static final String ISBN_JOEL_ON_SOFTWARE = "9784274066306";
+    private static final String NAME_ISBN;
+    
+    static {
+        Class<?> constantsClass = Constants.class;
+        try {
+            Field isbn = constantsClass.getDeclaredField("ISBN");
+            NAME_ISBN = (String) isbn.get(null);
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
+    public TestDetailActivity() {
+        super("jp.ne.motoki.android.bookshelfmanager", DetailActivity.class);
+
+        Intent intent = new Intent(getInstrumentation().getContext(), DetailActivity.class);
+        intent.putExtra(NAME_ISBN, ISBN_JOEL_ON_SOFTWARE);
+        setActivityIntent(intent);
+    }
+    
+    public void testGetJSONObject() {
+    }
+}

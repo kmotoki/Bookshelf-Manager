@@ -1,0 +1,157 @@
+package jp.ne.motoki.android.bookshelfmanager;
+
+import static jp.ne.motoki.android.bookshelfmanager.Constants.ISBN;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+public class DetailActivity extends Activity {
+    
+    private static final String URL_SEARCH_CONTENT =
+        "https://www.googleapis.com/books/v1/volumes?q=%s";
+    private static final Handler HANDLER = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            String thumbnailLink = (String) msg.obj;
+            Log.debug(thumbnailLink);
+        }
+        
+    };
+    
+    private LinearLayout detailContainer = null;
+    private TextView titleView = null;
+    private View noImageView = null;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.detail);
+        detailContainer = (LinearLayout) findViewById(R.id.detail_container);
+        titleView = (TextView) findViewById(R.id.title);
+        noImageView = findViewById(R.id.no_image);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent intent = getIntent();
+        String isbn = intent.getStringExtra(ISBN);
+        
+        SearchTask searchTask = new SearchTask();
+        searchTask.execute(isbn);
+    }
+
+    class SearchTask extends AsyncTask<String, Object, Result> {
+
+        @Override
+        protected Result doInBackground(String... params) {
+            try {
+                URL url = new URL(String.format(URL_SEARCH_CONTENT, params[0]));
+                URLConnection urlConnection = url.openConnection();
+                BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line = null;
+                while((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+                JSONObject jsonObject = new JSONObject(sb.toString());
+                
+                String title = null;
+                JSONArray items = jsonObject.getJSONArray("items");
+                int length = items.length();
+                for (int i = 0; i < length; i++) {
+                    JSONObject object = items.getJSONObject(i);
+                    if (object.has("volumeInfo")) {
+                        JSONObject volumeInfo = object.getJSONObject("volumeInfo");
+                        JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
+                        String thumbnail = imageLinks.getString("thumbnail");
+                        Message message = Message.obtain(HANDLER);
+                        message.obj = thumbnail;
+                        message.sendToTarget();
+                        title = volumeInfo.getString("title");
+                        Log.debug("title = " + title);
+                        Log.debug("thumbnail = " + thumbnail);
+                        return new Result(title, thumbnail);
+                    }
+                }
+            } catch (Exception e) {
+                Log.error("Exception in doInBackground", e);
+            }
+            
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Result result) {
+            super.onPostExecute(result);
+            if (result == null) {
+                Log.error("title is null");
+                return;
+            }
+            titleView.setText(result.title);
+            DownloadThumbnailTask downloadThumbnailTask = new DownloadThumbnailTask();
+            downloadThumbnailTask.execute(result.thumbnail);
+        }
+    }
+    
+    private class DownloadThumbnailTask extends AsyncTask<String, Object, Bitmap> {
+
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            try {
+                URL imageLink = new URL(params[0]);
+                URLConnection conn = imageLink.openConnection();
+                Bitmap thumbnail = BitmapFactory.decodeStream(conn.getInputStream());
+            } catch (Exception e) {
+                Log.error("Download thumbnail error", e);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            super.onPostExecute(result);
+            if (result == null) {
+                Log.error("bitmap is null");
+                return;
+            }
+            ImageView thumbnailView = new ImageView(DetailActivity.this);
+            thumbnailView.setImageBitmap(result);
+            detailContainer.removeView(noImageView);
+            detailContainer.addView(thumbnailView);
+        }
+        
+    }
+    
+    private class Result {
+        
+        private String title;
+        private String thumbnail;
+        
+        private Result(String title, String thumbnail) {
+            this.title = title;
+            this.thumbnail = thumbnail;
+        }
+    }
+}

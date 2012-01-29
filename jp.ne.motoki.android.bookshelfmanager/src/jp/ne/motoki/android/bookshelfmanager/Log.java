@@ -12,6 +12,10 @@ public class Log {
     public static void debug(String message) {
         android.util.Log.d(TAG, message);
     }
+    
+    public static void error(String message) {
+        android.util.Log.e(TAG, message);
+    }
 
     public static void error(String message, Throwable tr) {
         android.util.Log.e(TAG, message, tr);

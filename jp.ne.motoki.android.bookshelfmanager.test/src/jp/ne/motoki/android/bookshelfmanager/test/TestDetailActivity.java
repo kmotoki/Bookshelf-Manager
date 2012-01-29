@@ -1,22 +1,53 @@
 package jp.ne.motoki.android.bookshelfmanager.test;
 
+import java.lang.reflect.Field;
+
+import jp.ne.motoki.android.bookshelfmanager.Constants;
 import jp.ne.motoki.android.bookshelfmanager.DetailActivity;
-import android.app.Activity;
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
+import android.util.Log;
+import android.widget.TextView;
 
 public class TestDetailActivity extends ActivityInstrumentationTestCase2<DetailActivity> {
     
-    private final Activity testee;
+    private static final String ISBN_JOEL_ON_SOFTWARE = "9784274066306";
+    private static final String NAME_ISBN;
+    
+    static {
+        Class<?> constantsClass = Constants.class;
+        try {
+            Field isbn = constantsClass.getDeclaredField("ISBN");
+            isbn.setAccessible(true);
+            NAME_ISBN = (String) isbn.get(null);
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     public TestDetailActivity() {
         super("jp.ne.motoki.android.bookshelfmanager", DetailActivity.class);
-        testee = getActivity();
+
+        Intent intent = new Intent();
+        intent.putExtra(NAME_ISBN, ISBN_JOEL_ON_SOFTWARE);
+        setActivityIntent(intent);
     }
     
     public void testGetJSONObject() {
-        Intent intent = new Intent(testee.getApplicationContext(), DetailActivity.class);
-        intent.putExtra("isbn", "9784274066306");
-        //startActivity(intent);
+        TextView titleView = (TextView) getActivity().findViewById(
+                jp.ne.motoki.android.bookshelfmanager.R.id.title);
+        //titleView.seton
+        for (int i = 0; i < 10; i++) {
+            if (titleView.getText().length() == 0) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Log.e("test", "Interrupted", e);
+                }
+            } else {
+                assertEquals(titleView.getText(), "Joel on Software");
+            }
+            fail("timeout");
+        }
     }
 }

@@ -1,0 +1,9 @@
+#Sun Jan 29 17:17:12 JST 2012
+logcat.view.colsize.Level=30
+eclipse.preferences.version=1
+logcat.view.colsize.Application=155
+logcat.view.colsize.Time=155
+logcat.view.colsize.Tag=123
+logcat.view.colsize.Text=597
+logcat.view.filters.list=name\: 'Bookshelf-Manager', tag\: 'Bookshelf Manager', text\: '', pid\: '', app\: '', level\: 'verbose', 
+logcat.view.colsize.PID=58

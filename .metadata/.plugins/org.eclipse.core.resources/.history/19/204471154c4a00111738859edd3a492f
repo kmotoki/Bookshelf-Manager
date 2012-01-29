@@ -1,0 +1,15 @@
+package jp.ne.motoki.android.bookshelfmanager.test;
+
+import jp.ne.motoki.android.bookshelfmanager.DetailActivity;
+import android.test.ActivityInstrumentationTestCase2;
+
+public class TestDetailActivity extends ActivityInstrumentationTestCase2<DetailActivity> {
+
+    public TestDetailActivity() {
+        super("jp.ne.motoki.android.bookshelfmanager", DetailActivity.class);
+    }
+    
+    public void testGetJSONObject() {
+        
+    }
+}

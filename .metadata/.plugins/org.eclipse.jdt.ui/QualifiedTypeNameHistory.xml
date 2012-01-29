@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="android.util.Log"/>
+<fullyQualifiedTypeName name="java.lang.reflect.Field"/>
+<fullyQualifiedTypeName name="jp.ne.motoki.android.bookshelfmanager.R.layout"/>
+<fullyQualifiedTypeName name="jp.ne.motoki.android.bookshelfmanager.R.id"/>
+<fullyQualifiedTypeName name="jp.ne.motoki.android.bookshelfmanager.DatabaseHelper.Contents"/>
+<fullyQualifiedTypeName name="jp.ne.motoki.android.bookshelfmanager.DetailActivity"/>
+</qualifiedTypeNameHistroy>
