@@ -1,7 +1,0 @@
-package jp.ne.motoki.android.bookshelfmanager.test;
-
-import android.test.ActivityInstrumentationTestCase2;
-
-public class TestDetailActivity extends ActivityInstrumentationTestCase2<DetailActivity> {
-
-}

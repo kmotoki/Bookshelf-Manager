@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testrun name="TestDetailActivity" project="jp.ne.motoki.android.bookshelfmanager.test" tests="1" started="1" failures="0" errors="0" ignored="0">
-  <testsuite name="jp.ne.motoki.android.bookshelfmanager.test.TestDetailActivity" time="1.336">
-    <testcase name="testGetJSONObject" classname="jp.ne.motoki.android.bookshelfmanager.test.TestDetailActivity" time="1.336"/>
-  </testsuite>
-</testrun>

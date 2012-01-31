@@ -1,4 +1,0 @@
-INDEX VERSION 1.126+C:\Users\n\workspace\Bookshelf-Manager\.metadata\.plugins\org.eclipse.jdt.core
-578992585.index
-3259967179.index
-2157233436.index
