@@ -26,7 +26,7 @@ public class BookshelfProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        // TODO ç„¡åŠ¹ãªURIã‚’è¿”ã™
+        // TODO –³Œø‚ÈURL‚ğ•Ô‚µ‚Ä‚¢‚é
         long id = db.insert("contents", null, values);
         Uri.Builder builder = uri.buildUpon();
         builder.appendQueryParameter("_id", String.valueOf(id));

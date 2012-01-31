@@ -38,10 +38,10 @@ public class DetailActivity extends Activity {
         titleView = (TextView) findViewById(R.id.title);
         noImageView = findViewById(R.id.no_image);
     }
-
+    
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+    	super.onStart();
         Intent intent = getIntent();
         String isbn = intent.getStringExtra(ISBN);
         
@@ -99,6 +99,7 @@ public class DetailActivity extends Activity {
         thumbnailView.setImageBitmap(thumbnail);
         detailContainer.removeView(noImageView);
         detailContainer.addView(thumbnailView);
+        // remove reference
         noImageView = null;
     }
 
