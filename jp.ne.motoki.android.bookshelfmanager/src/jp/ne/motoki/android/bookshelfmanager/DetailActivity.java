@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class DetailActivity extends Activity {
     
@@ -45,43 +46,8 @@ public class DetailActivity extends Activity {
         Intent intent = getIntent();
         String isbn = intent.getStringExtra(ISBN);
         
-        SearchTask searchTask = new SearchTask();
+        SearchContentsTask searchTask = new SearchContentsTask();
         searchTask.execute(isbn);
-    }
-    
-    private ContentInfo retrieveContentInfo(String isbn)
-    		throws ContentInfoNotFoundException {
-        URL url;
-		try {
-			url = new URL(String.format(URL_SEARCH_CONTENT, isbn));
-	        URLConnection urlConnection = url.openConnection();
-	        BufferedReader br = new BufferedReader(
-	                new InputStreamReader(urlConnection.getInputStream()));
-	        StringBuilder sb = new StringBuilder();
-	        String line = null;
-	        while((line = br.readLine()) != null) {
-	            sb.append(line);
-	        }
-	        JSONObject jsonObject = new JSONObject(sb.toString());
-	        
-	        JSONArray items = jsonObject.getJSONArray("items");
-	        int length = items.length();
-	        for (int i = 0; i < length; i++) {
-	            JSONObject object = items.getJSONObject(i);
-	            if (object.has("volumeInfo")) {
-	                JSONObject volumeInfo = object.getJSONObject("volumeInfo");
-	                JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
-	                String title = volumeInfo.getString("title");
-	                String thumbnail = imageLinks.getString("thumbnail");
-	                Log.debug("title = " + title);
-	                Log.debug("thumbnail = " + thumbnail);
-	                return new ContentInfo(title, thumbnail);
-	            }
-	        }
-		} catch (Exception e) {
-			throw new ContentInfoNotFoundException(e);
-		}
-		throw new ContentInfoNotFoundException();
     }
     
     private void setTitle(String title) {
@@ -108,7 +74,12 @@ public class DetailActivity extends Activity {
         noImageView = null;
     }
 
-    private class SearchTask extends AsyncTask<String, Object, ContentInfo> {
+	public boolean hasOwned(ContentInfo result) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+    private class SearchContentsTask extends AsyncTask<String, Object, ContentInfo> {
 
         @Override
         protected ContentInfo doInBackground(String... params) {
@@ -128,8 +99,49 @@ public class DetailActivity extends Activity {
                 Log.error("result is null");
                 return;
             }
-            setTitle(result.title);
-            startDownloadingThumbnail(result.thumbnail);
+            setTitle(result.getTitle());
+            startDownloadingThumbnail(result.getThumbnailPath());
+            if (result.hasBeenOwned()) {
+            	// TODO
+            	Toast.makeText(DetailActivity.this, "Yeah! direct hit!!", Toast.LENGTH_SHORT).show();
+            } else {
+            	Toast.makeText(DetailActivity.this, "Miss shot..", Toast.LENGTH_SHORT).show();
+            }
+        }
+        
+        private ContentInfo retrieveContentInfo(String isbn)
+        		throws ContentInfoNotFoundException {
+            URL url;
+    		try {
+    			url = new URL(String.format(URL_SEARCH_CONTENT, isbn));
+    	        URLConnection urlConnection = url.openConnection();
+    	        BufferedReader br = new BufferedReader(
+    	                new InputStreamReader(urlConnection.getInputStream()));
+    	        StringBuilder sb = new StringBuilder();
+    	        String line = null;
+    	        while((line = br.readLine()) != null) {
+    	            sb.append(line);
+    	        }
+    	        JSONObject jsonObject = new JSONObject(sb.toString());
+    	        
+    	        JSONArray items = jsonObject.getJSONArray("items");
+    	        int length = items.length();
+    	        for (int i = 0; i < length; i++) {
+    	            JSONObject object = items.getJSONObject(i);
+    	            if (object.has("volumeInfo")) {
+    	                JSONObject volumeInfo = object.getJSONObject("volumeInfo");
+    	                JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
+    	                String title = volumeInfo.getString("title");
+    	                String thumbnail = imageLinks.getString("thumbnail");
+    	                Log.debug("title = " + title);
+    	                Log.debug("thumbnail = " + thumbnail);
+    	                return new ContentInfo(title, thumbnail);
+    	            }
+    	        }
+    		} catch (Exception e) {
+    			throw new ContentInfoNotFoundException(e);
+    		}
+    		throw new ContentInfoNotFoundException();
         }
     }
     
@@ -160,11 +172,23 @@ public class DetailActivity extends Activity {
     private class ContentInfo {
         
         private final String title;
-        private final String thumbnail;
+        private final String thumbnailPath;
         
         private ContentInfo(String title, String thumbnail) {
             this.title = title;
-            this.thumbnail = thumbnail;
+            this.thumbnailPath = thumbnail;
+        }
+        
+        private String getTitle() {
+        	return title;
+        }
+        
+        private String getThumbnailPath() {
+        	return thumbnailPath;
+        }
+        
+        private boolean hasBeenOwned() {
+        	return false;
         }
     }
 }
