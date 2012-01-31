@@ -3,11 +3,14 @@ package jp.ne.motoki.android.bookshelfmanager;
 import static jp.ne.motoki.android.bookshelfmanager.Constants.ISBN;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
@@ -49,34 +52,39 @@ public class DetailActivity extends Activity {
         searchTask.execute(isbn);
     }
     
-    private ContentInfo retrieveContentInfo(String isbn) throws Exception {
-        URL url = new URL(String.format(URL_SEARCH_CONTENT, isbn));
-        URLConnection urlConnection = url.openConnection();
-        BufferedReader br = new BufferedReader(
-                new InputStreamReader(urlConnection.getInputStream()));
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        while((line = br.readLine()) != null) {
-            sb.append(line);
-        }
-        JSONObject jsonObject = new JSONObject(sb.toString());
-        
-        JSONArray items = jsonObject.getJSONArray("items");
-        int length = items.length();
-        for (int i = 0; i < length; i++) {
-            JSONObject object = items.getJSONObject(i);
-            if (object.has("volumeInfo")) {
-                JSONObject volumeInfo = object.getJSONObject("volumeInfo");
-                JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
-                String title = volumeInfo.getString("title");
-                String thumbnail = imageLinks.getString("thumbnail");
-                Log.debug("title = " + title);
-                Log.debug("thumbnail = " + thumbnail);
-                return new ContentInfo(title, thumbnail);
-            }
-        }
-        
-        return null;
+    private ContentInfo retrieveContentInfo(String isbn)
+    		throws ContentInfoNotFoundException {
+        URL url;
+		try {
+			url = new URL(String.format(URL_SEARCH_CONTENT, isbn));
+	        URLConnection urlConnection = url.openConnection();
+	        BufferedReader br = new BufferedReader(
+	                new InputStreamReader(urlConnection.getInputStream()));
+	        StringBuilder sb = new StringBuilder();
+	        String line = null;
+	        while((line = br.readLine()) != null) {
+	            sb.append(line);
+	        }
+	        JSONObject jsonObject = new JSONObject(sb.toString());
+	        
+	        JSONArray items = jsonObject.getJSONArray("items");
+	        int length = items.length();
+	        for (int i = 0; i < length; i++) {
+	            JSONObject object = items.getJSONObject(i);
+	            if (object.has("volumeInfo")) {
+	                JSONObject volumeInfo = object.getJSONObject("volumeInfo");
+	                JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
+	                String title = volumeInfo.getString("title");
+	                String thumbnail = imageLinks.getString("thumbnail");
+	                Log.debug("title = " + title);
+	                Log.debug("thumbnail = " + thumbnail);
+	                return new ContentInfo(title, thumbnail);
+	            }
+	        }
+		} catch (Exception e) {
+			throw new ContentInfoNotFoundException(e);
+		}
+		throw new ContentInfoNotFoundException();
     }
     
     private void setTitle(String title) {
@@ -109,7 +117,7 @@ public class DetailActivity extends Activity {
         protected ContentInfo doInBackground(String... params) {
             try {
                 return retrieveContentInfo(params[0]);
-            } catch (Exception e) {
+            } catch (ContentInfoNotFoundException e) {
                 Log.error("Exception in doInBackground", e);
             }
             return null;
@@ -119,7 +127,8 @@ public class DetailActivity extends Activity {
         protected void onPostExecute(ContentInfo result) {
             super.onPostExecute(result);
             if (result == null) {
-                Log.error("title is null");
+            	// TODO bad stady
+                Log.error("result is null");
                 return;
             }
             setTitle(result.title);
