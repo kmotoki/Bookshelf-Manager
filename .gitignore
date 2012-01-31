@@ -1,1 +1,3 @@
-.metadata/ jp.ne.motoki.android.bookshelfmanager/bin/ jp.ne.motoki.android.bookshelfmanager.test/bin/
+.metadata/*
+jp.ne.motoki.android.bookshelfmanager/bin/*
+jp.ne.motoki.android.bookshelfmanager.test/bin/*
