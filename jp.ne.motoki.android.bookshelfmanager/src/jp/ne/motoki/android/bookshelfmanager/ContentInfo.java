@@ -13,22 +13,22 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ContentInfo {
-	
-	private static final String NAME_ITEMS = "items";
-	private static final String NAME_VOLUME_INFO = "volumeInfo";
-	private static final String NAME_INDUSTRY_IDENTIFIERS = "industryIdentifiers";
-	private static final String NAME_TYPE = "type";
-	private static final String VALUE_TYPE_ISBN_10 = "ISBN_10";
-	private static final String VALUE_TYPE_ISBN_13 = "ISBN_13";
-	private static final String NAME_IDENTIFIER = "identifier";
-	private static final String NAME_PAGE_COUNT = "pageCount";
-	private static final String NAME_TITLE = "title";
-	private static final String NAME_SUBTITLE = "subtitle";
-	private static final String NAME_DESCRIPTION = "description";
-	private static final String NAME_AUTHORS = "authors";
-	private static final String NAME_PUBLISHED_DATE = "publishedDate";
-	private static final String NAME_IMAGE_LINKS = "imageLinks";
-	private static final String NAME_THUMBNAIL = "thumbnail";
+    
+    private static final String NAME_ITEMS = "items";
+    private static final String NAME_VOLUME_INFO = "volumeInfo";
+    private static final String NAME_INDUSTRY_IDENTIFIERS = "industryIdentifiers";
+    private static final String NAME_TYPE = "type";
+    private static final String VALUE_TYPE_ISBN_10 = "ISBN_10";
+    private static final String VALUE_TYPE_ISBN_13 = "ISBN_13";
+    private static final String NAME_IDENTIFIER = "identifier";
+    private static final String NAME_PAGE_COUNT = "pageCount";
+    private static final String NAME_TITLE = "title";
+    private static final String NAME_SUBTITLE = "subtitle";
+    private static final String NAME_DESCRIPTION = "description";
+    private static final String NAME_AUTHORS = "authors";
+    private static final String NAME_PUBLISHED_DATE = "publishedDate";
+    private static final String NAME_IMAGE_LINKS = "imageLinks";
+    private static final String NAME_THUMBNAIL = "thumbnail";
     
     private final String isbn10;
     private final String isbn13;
@@ -53,22 +53,22 @@ public class ContentInfo {
         try {
             Log.debug(jsonObject.toString(2));
             
-	        Map<String, ? extends Object> fields =
-	        		getFields(jsonObject.getJSONArray(NAME_ITEMS));
-	        
-	        isbn10 = (String) fields.get(VALUE_TYPE_ISBN_10);
-	        isbn13 = (String) fields.get(VALUE_TYPE_ISBN_13);
-	        pageCount = (Integer) fields.get(NAME_PAGE_COUNT);
-	        @SuppressWarnings("unchecked")
-			List<String> authors = (List<String>) fields.get(NAME_AUTHORS);
-	        this.authors = authors;
-	        title = (String) fields.get(NAME_TITLE);
-	        subTitle = (String) fields.get(NAME_SUBTITLE);
-	        thumbnailLink = (String) fields.get(NAME_THUMBNAIL);
-	        description = (String) fields.get(NAME_DESCRIPTION);
-	        publishedDate = (Date) fields.get(NAME_PUBLISHED_DATE);
+            Map<String, ? extends Object> fields =
+                    getFields(jsonObject.getJSONArray(NAME_ITEMS));
+            
+            isbn10 = (String) fields.get(VALUE_TYPE_ISBN_10);
+            isbn13 = (String) fields.get(VALUE_TYPE_ISBN_13);
+            pageCount = (Integer) fields.get(NAME_PAGE_COUNT);
+            @SuppressWarnings("unchecked")
+            List<String> authors = (List<String>) fields.get(NAME_AUTHORS);
+            this.authors = authors;
+            title = (String) fields.get(NAME_TITLE);
+            subTitle = (String) fields.get(NAME_SUBTITLE);
+            thumbnailLink = (String) fields.get(NAME_THUMBNAIL);
+            description = (String) fields.get(NAME_DESCRIPTION);
+            publishedDate = (Date) fields.get(NAME_PUBLISHED_DATE);
         } catch (Exception e) {
-        	throw new IllegalArgumentException(e);
+            throw new IllegalArgumentException(e);
         }
     }
     
@@ -113,9 +113,9 @@ public class ContentInfo {
     }
     
     private static Map<String, ? extends Object> getFields(JSONArray items)
-    		throws JSONException {
-    	
-    	Map<String, Object> result = new HashMap<String, Object>();
+            throws JSONException {
+        
+        Map<String, Object> result = new HashMap<String, Object>();
         
         final int length = items.length();
         for (int i = 0; i < length; i++) {
@@ -128,7 +128,7 @@ public class ContentInfo {
                 for (int j = 0; j < len; j++) {
                     JSONObject o = industryIdentifiers.getJSONObject(j);
                     if (o.getString(NAME_TYPE).equals(VALUE_TYPE_ISBN_10)) {
-                    	result.put(VALUE_TYPE_ISBN_10, o.get(NAME_IDENTIFIER));
+                        result.put(VALUE_TYPE_ISBN_10, o.get(NAME_IDENTIFIER));
                     } else if (o.getString(NAME_TYPE).equals(VALUE_TYPE_ISBN_13)) {
                         result.put(VALUE_TYPE_ISBN_13, o.get(NAME_IDENTIFIER));
                     }
@@ -147,7 +147,7 @@ public class ContentInfo {
                 result.put(NAME_AUTHORS, Collections.unmodifiableList(authors));
                 
                 result.put(NAME_PUBLISHED_DATE, createPublishedDate(
-                		volumeInfo.getString(NAME_PUBLISHED_DATE)));
+                        volumeInfo.getString(NAME_PUBLISHED_DATE)));
                 
                 JSONObject imageLinks = volumeInfo.getJSONObject(NAME_IMAGE_LINKS);
                 result.put(NAME_THUMBNAIL, imageLinks.get(NAME_THUMBNAIL));
@@ -155,7 +155,7 @@ public class ContentInfo {
                 break;
             }
         }
-    	return result;
+        return result;
     }
     
     private static Date createPublishedDate(String text) {
