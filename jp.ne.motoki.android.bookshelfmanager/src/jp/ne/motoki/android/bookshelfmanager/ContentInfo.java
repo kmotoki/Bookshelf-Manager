@@ -1,78 +1,75 @@
 package jp.ne.motoki.android.bookshelfmanager;
 
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ContentInfo {
+	
+	private static final String NAME_ITEMS = "items";
+	private static final String NAME_VOLUME_INFO = "volumeInfo";
+	private static final String NAME_INDUSTRY_IDENTIFIERS = "industryIdentifiers";
+	private static final String NAME_TYPE = "type";
+	private static final String VALUE_TYPE_ISBN_10 = "ISBN_10";
+	private static final String VALUE_TYPE_ISBN_13 = "ISBN_13";
+	private static final String NAME_IDENTIFIER = "identifier";
+	private static final String NAME_PAGE_COUNT = "pageCount";
+	private static final String NAME_TITLE = "title";
+	private static final String NAME_SUBTITLE = "subtitle";
+	private static final String NAME_DESCRIPTION = "description";
+	private static final String NAME_AUTHORS = "authors";
+	private static final String NAME_PUBLISHED_DATE = "publishedDate";
+	private static final String NAME_IMAGE_LINKS = "imageLinks";
+	private static final String NAME_THUMBNAIL = "thumbnail";
     
-    private String isbn10;
-    private String isbn13;
+    private final String isbn10;
+    private final String isbn13;
     
-    private int pageCount;
-    private List<String> authors; 
+    private final int pageCount;
+    private final List<String> authors; 
     
-    private String title;
-    private String subTitle;
-    private String thumbnailLink;
+    private final String title;
+    private final String subTitle;
+    private final String thumbnailLink;
     
-    private String description;
+    private final String description;
     
-    private Date publishedDate;
+    private final Date publishedDate;
     
-    
-    public ContentInfo(JSONObject jsonObject) throws JSONException {
-        Log.debug("jsonObject = " + jsonObject);
-        JSONArray items = jsonObject.getJSONArray("items");
-        final int length = items.length();
-        for (int i = 0; i < length; i++) {
-            JSONObject object = items.getJSONObject(i);
-            if (object.has("volumeInfo")) {
-                JSONObject volumeInfo = object.getJSONObject("volumeInfo");
-                
-                JSONArray industryIdentifiers = volumeInfo.getJSONArray("industryIdentifiers");
-                final int len = industryIdentifiers.length();
-                for (int j = 0; j < len; j++) {
-                    JSONObject o = industryIdentifiers.getJSONObject(j);
-                    if (o.getString("type").equals("ISBN_10")) {
-                        isbn10 = o.getString("identifier");
-                    } else if (o.getString("type").equals("ISBN_13")) {
-                        isbn13 = o.getString("identifier");
-                    }
-                }
-                pageCount = volumeInfo.getInt("pageCount");
-                title = volumeInfo.getString("title");
-                subTitle = volumeInfo.getString("subtitle");
-                description = volumeInfo.getString("description");
-                
-                JSONArray authorsArray = volumeInfo.getJSONArray("authors");
-                List<String> tempAuthors = new ArrayList<String>();
-                int l = authorsArray.length();
-                for (int k = 0; k < l; k++) {
-                    tempAuthors.add(authorsArray.getString(k));
-                }
-                authors = Collections.unmodifiableList(tempAuthors);
-                
-                publishedDate =
-                    createPublishedDate(volumeInfo.getString("publishedDate"));
-                
-                JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
-                thumbnailLink = imageLinks.getString("thumbnail");
-            }
+    /**
+     * 
+     * @param jsonObject
+     */
+    public ContentInfo(JSONObject jsonObject) {
+        
+        try {
+            Log.debug(jsonObject.toString(2));
+            
+	        Map<String, ? extends Object> fields =
+	        		getFields(jsonObject.getJSONArray(NAME_ITEMS));
+	        
+	        isbn10 = (String) fields.get(VALUE_TYPE_ISBN_10);
+	        isbn13 = (String) fields.get(VALUE_TYPE_ISBN_13);
+	        pageCount = (Integer) fields.get(NAME_PAGE_COUNT);
+	        @SuppressWarnings("unchecked")
+			List<String> authors = (List<String>) fields.get(NAME_AUTHORS);
+	        this.authors = authors;
+	        title = (String) fields.get(NAME_TITLE);
+	        subTitle = (String) fields.get(NAME_SUBTITLE);
+	        thumbnailLink = (String) fields.get(NAME_THUMBNAIL);
+	        description = (String) fields.get(NAME_DESCRIPTION);
+	        publishedDate = (Date) fields.get(NAME_PUBLISHED_DATE);
+        } catch (Exception e) {
+        	throw new IllegalArgumentException(e);
         }
-    }
-    
-    public ContentInfo(String title, String thumbnail) {
-        this.title = title;
-        this.thumbnailLink = thumbnail;
     }
     
     public String getIsbn10() {
@@ -115,7 +112,53 @@ public class ContentInfo {
         return false;
     }
     
-    public static Date createPublishedDate(String text) {
+    private static Map<String, ? extends Object> getFields(JSONArray items)
+    		throws JSONException {
+    	
+    	Map<String, Object> result = new HashMap<String, Object>();
+        
+        final int length = items.length();
+        for (int i = 0; i < length; i++) {
+            JSONObject object = items.getJSONObject(i);
+            if (object.has(NAME_VOLUME_INFO)) {
+                JSONObject volumeInfo = object.getJSONObject(NAME_VOLUME_INFO);
+                
+                JSONArray industryIdentifiers = volumeInfo.getJSONArray(NAME_INDUSTRY_IDENTIFIERS);
+                final int len = industryIdentifiers.length();
+                for (int j = 0; j < len; j++) {
+                    JSONObject o = industryIdentifiers.getJSONObject(j);
+                    if (o.getString(NAME_TYPE).equals(VALUE_TYPE_ISBN_10)) {
+                    	result.put(VALUE_TYPE_ISBN_10, o.get(NAME_IDENTIFIER));
+                    } else if (o.getString(NAME_TYPE).equals(VALUE_TYPE_ISBN_13)) {
+                        result.put(VALUE_TYPE_ISBN_13, o.get(NAME_IDENTIFIER));
+                    }
+                }
+                result.put(NAME_PAGE_COUNT, volumeInfo.get(NAME_PAGE_COUNT));
+                result.put(NAME_TITLE, volumeInfo.get(NAME_TITLE));
+                result.put(NAME_SUBTITLE, volumeInfo.get(NAME_SUBTITLE));
+                result.put(NAME_DESCRIPTION, volumeInfo.get(NAME_DESCRIPTION));
+
+                List<String> authors = new ArrayList<String>();
+                JSONArray authorsArray = volumeInfo.getJSONArray(NAME_AUTHORS);
+                int l = authorsArray.length();
+                for (int k = 0; k < l; k++) {
+                    authors.add(authorsArray.getString(k));
+                }
+                result.put(NAME_AUTHORS, Collections.unmodifiableList(authors));
+                
+                result.put(NAME_PUBLISHED_DATE, createPublishedDate(
+                		volumeInfo.getString(NAME_PUBLISHED_DATE)));
+                
+                JSONObject imageLinks = volumeInfo.getJSONObject(NAME_IMAGE_LINKS);
+                result.put(NAME_THUMBNAIL, imageLinks.get(NAME_THUMBNAIL));
+                
+                break;
+            }
+        }
+    	return result;
+    }
+    
+    private static Date createPublishedDate(String text) {
         String[] parts = text.split("-");
         Calendar current = Calendar.getInstance();
         current.set(

@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.app.Activity;
@@ -136,27 +135,11 @@ public class DetailActivity extends Activity {
     	            sb.append(line);
     	        }
     	        JSONObject jsonObject = new JSONObject(sb.toString());
-    	        Log.debug(sb.toString());
-    	        Log.debug(jsonObject.toString());
     	        
-    	        JSONArray items = jsonObject.getJSONArray("items");
-    	        int length = items.length();
-    	        for (int i = 0; i < length; i++) {
-    	            JSONObject object = items.getJSONObject(i);
-    	            if (object.has("volumeInfo")) {
-    	                JSONObject volumeInfo = object.getJSONObject("volumeInfo");
-    	                JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
-    	                String title = volumeInfo.getString("title");
-    	                String thumbnail = imageLinks.getString("thumbnail");
-    	                Log.debug("title = " + title);
-    	                Log.debug("thumbnail = " + thumbnail);
-    	                return new ContentInfo(title, thumbnail);
-    	            }
-    	        }
+    	        return new ContentInfo(jsonObject);
     		} catch (Exception e) {
     			throw new ContentInfoNotFoundException(e);
     		}
-    		throw new ContentInfoNotFoundException();
         }
     }
     
