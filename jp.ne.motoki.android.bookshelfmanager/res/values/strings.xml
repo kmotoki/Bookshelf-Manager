@@ -8,4 +8,14 @@
     <string name="about">About this App</string>
     <string name="help">Help</string>
     <string name="settings">Settings</string>
+    
+    <string name="detail">Detail</string>
+    
+    <string name="status">Choose the status</string>
+    <string-array name="status_array">
+        <item>Interesting</item>
+        <item>Have read</item>
+        <item>Reading</item>
+        <item>leave..</item>
+    </string-array>
 </resources>

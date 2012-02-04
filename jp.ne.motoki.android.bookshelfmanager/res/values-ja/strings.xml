@@ -8,4 +8,14 @@
     <string name="about">このアプリについて</string>
     <string name="help">ヘルプ</string>
     <string name="settings">設定</string>
+    
+    <string name="detail">詳細</string>
+    
+    <string name="status">選んでください</string>
+    <string-array name="status_array">
+        <item>気になる</item>
+        <item>読み終わった</item>
+        <item>読んでる</item>
+        <item>積ん読..</item>
+    </string-array>
 </resources>

@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
     
     public static final String DATABASE_NAME = "bookshelf";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     
     static class Contents {
         static final String TABLE_NAME = "contents";
@@ -36,7 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void createDatabase(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + Contents.TABLE_NAME + " ("
                 + Contents.COLUMN_NAME_ID + " INTEGER PRIMARY KEY, "
-                + Contents.COLUMN_NAME_ISBN + " TEXT NOT NULL"
+                + Contents.COLUMN_NAME_ISBN + " TEXT NOT NULL UNIQUE"
                 + ");");
     }
 

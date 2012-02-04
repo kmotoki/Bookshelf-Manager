@@ -17,8 +17,10 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +32,7 @@ public class DetailActivity extends Activity {
     private LinearLayout detailContainer = null;
     private TextView titleView = null;
     private View noImageView = null;
+    private Spinner statusSpinner = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,12 @@ public class DetailActivity extends Activity {
         detailContainer = (LinearLayout) findViewById(R.id.detail_container);
         titleView = (TextView) findViewById(R.id.title);
         noImageView = findViewById(R.id.no_image);
+        statusSpinner = (Spinner) findViewById(R.id.status);
+        
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this, R.array.status_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        statusSpinner.setAdapter(adapter);
     }
     
     @Override
@@ -48,6 +57,10 @@ public class DetailActivity extends Activity {
         
         SearchContentsTask searchTask = new SearchContentsTask();
         searchTask.execute(isbn);
+    }
+    
+    public void onClickButtonDetail(View view) {
+        Toast.makeText(this, "onClickButtonDetail", Toast.LENGTH_SHORT).show();
     }
     
     private void setTitle(String title) {
@@ -69,7 +82,7 @@ public class DetailActivity extends Activity {
         ImageView thumbnailView = new ImageView(DetailActivity.this);
         thumbnailView.setImageBitmap(thumbnail);
         detailContainer.removeView(noImageView);
-        detailContainer.addView(thumbnailView);
+        detailContainer.addView(thumbnailView, 1);
         // remove reference
         noImageView = null;
     }
@@ -100,7 +113,7 @@ public class DetailActivity extends Activity {
                 return;
             }
             setTitle(result.getTitle());
-            startDownloadingThumbnail(result.getThumbnailPath());
+            startDownloadingThumbnail(result.getThumbnailLink());
             if (result.hasBeenOwned()) {
             	// TODO
             	Toast.makeText(DetailActivity.this, "Yeah! direct hit!!", Toast.LENGTH_SHORT).show();
@@ -123,6 +136,8 @@ public class DetailActivity extends Activity {
     	            sb.append(line);
     	        }
     	        JSONObject jsonObject = new JSONObject(sb.toString());
+    	        Log.debug(sb.toString());
+    	        Log.debug(jsonObject.toString());
     	        
     	        JSONArray items = jsonObject.getJSONArray("items");
     	        int length = items.length();
@@ -169,26 +184,5 @@ public class DetailActivity extends Activity {
         
     }
     
-    private class ContentInfo {
-        
-        private final String title;
-        private final String thumbnailPath;
-        
-        private ContentInfo(String title, String thumbnail) {
-            this.title = title;
-            this.thumbnailPath = thumbnail;
-        }
-        
-        private String getTitle() {
-        	return title;
-        }
-        
-        private String getThumbnailPath() {
-        	return thumbnailPath;
-        }
-        
-        private boolean hasBeenOwned() {
-        	return false;
-        }
-    }
+
 }
