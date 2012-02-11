@@ -1,6 +1,5 @@
 package jp.ne.motoki.android.bookshelfmanager;
 
-import static jp.ne.motoki.android.bookshelfmanager.Constants.ISBN;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -54,7 +53,7 @@ public class MainActivity extends Activity {
             
             Intent callDetailActivity =
                 new Intent(getApplicationContext(), DetailActivity.class);
-            callDetailActivity.putExtra(ISBN, isbn);
+            callDetailActivity.putExtra("isbn", isbn);
             startActivity(callDetailActivity);
         }
     }

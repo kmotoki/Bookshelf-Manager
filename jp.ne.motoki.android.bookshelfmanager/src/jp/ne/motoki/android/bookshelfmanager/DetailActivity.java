@@ -1,13 +1,7 @@
 package jp.ne.motoki.android.bookshelfmanager;
 
-import static jp.ne.motoki.android.bookshelfmanager.Constants.ISBN;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-
-import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -15,6 +9,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -23,9 +19,26 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class DetailActivity extends Activity {
-    
-    private static final String URL_SEARCH_CONTENT =
-        "https://www.googleapis.com/books/v1/volumes?q=%s";
+	
+	private final Handler HANDLER = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			Log.debug(msg.toString());
+			
+			Contents result = (Contents) msg.obj;
+			setTitle(result.getTitle());
+	        startDownloadingThumbnail(result.getThumbnailLink());
+	        if (result.hasBeenOwned()) {
+	        	// TODO
+	        	Toast.makeText(DetailActivity.this, "Yeah! direct hit!!", Toast.LENGTH_SHORT).show();
+	        } else {
+	        	Toast.makeText(DetailActivity.this, "Miss shot..", Toast.LENGTH_SHORT).show();
+	        }
+		}
+		
+	};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +57,10 @@ public class DetailActivity extends Activity {
     protected void onStart() {
     	super.onStart();
         Intent intent = getIntent();
-        String isbn = intent.getStringExtra(ISBN);
+        String isbn = intent.getStringExtra("isbn");
         
         SearchContentsTask searchTask = new SearchContentsTask();
-        searchTask.execute(isbn);
+        searchTask.execute(isbn, HANDLER);
     }
     
     public void onClickButtonDetail(View view) {
@@ -79,58 +92,6 @@ public class DetailActivity extends Activity {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
-    private class SearchContentsTask extends AsyncTask<String, Object, Contents> {
-
-        @Override
-        protected Contents doInBackground(String... params) {
-            try {
-                return retrieveContentInfo(params[0]);
-            } catch (ContentsNotFoundException e) {
-                Log.error("Exception in doInBackground", e);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Contents result) {
-            super.onPostExecute(result);
-            if (result == null) {
-            	// TODO bad stady
-                Log.error("result is null");
-                return;
-            }
-            setTitle(result.getTitle());
-            startDownloadingThumbnail(result.getThumbnailLink());
-            if (result.hasBeenOwned()) {
-            	// TODO
-            	Toast.makeText(DetailActivity.this, "Yeah! direct hit!!", Toast.LENGTH_SHORT).show();
-            } else {
-            	Toast.makeText(DetailActivity.this, "Miss shot..", Toast.LENGTH_SHORT).show();
-            }
-        }
-        
-        private Contents retrieveContentInfo(String isbn)
-        		throws ContentsNotFoundException {
-            URL url;
-    		try {
-    			url = new URL(String.format(URL_SEARCH_CONTENT, isbn));
-    	        URLConnection urlConnection = url.openConnection();
-    	        BufferedReader br = new BufferedReader(
-    	                new InputStreamReader(urlConnection.getInputStream()));
-    	        StringBuilder sb = new StringBuilder();
-    	        String line = null;
-    	        while((line = br.readLine()) != null) {
-    	            sb.append(line);
-    	        }
-    	        JSONObject jsonObject = new JSONObject(sb.toString());
-    	        
-    	        return new Contents(jsonObject);
-    		} catch (Exception e) {
-    			throw new ContentsNotFoundException(e);
-    		}
-        }
-    }
     
     private class DownloadThumbnailTask extends AsyncTask<String, Object, Bitmap> {
 
