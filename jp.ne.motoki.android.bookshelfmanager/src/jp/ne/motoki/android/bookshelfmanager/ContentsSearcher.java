@@ -5,24 +5,26 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
+import jp.ne.motoki.android.bookshelfmanager.ContentsSearcher.Request;
+
 import org.json.JSONObject;
 
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 
-public class ContentsSearcher extends AsyncTask<Object, Object, Contents> {
+public class ContentsSearcher extends AsyncTask<Request, Object, Contents> {
     
     private static final String URL_SEARCH_CONTENT =
         "https://www.googleapis.com/books/v1/volumes?q=%s";
     
-    private Handler handler = null;
+    private Handler client = null;
 
 	@Override
-	protected Contents doInBackground(Object... params) {
-		handler = (Handler) params[1];
+	protected Contents doInBackground(Request... params) {
+		client = params[0].getClient();
         try {
-            return retrieveContentInfo((String) params[0]);
+            return retrieveContentInfo(params[0].getIsbn());
         } catch (ContentsNotFoundException e) {
             Log.error("Exception in doInBackground", e);
         }
@@ -37,7 +39,7 @@ public class ContentsSearcher extends AsyncTask<Object, Object, Contents> {
             Log.error("result is null");
             return;
         }
-        Message message = Message.obtain(handler);
+        Message message = Message.obtain(client);
         message.obj = result;
         message.sendToTarget();
         
@@ -64,4 +66,27 @@ public class ContentsSearcher extends AsyncTask<Object, Object, Contents> {
 		}
     }
 
+    public static class Request {
+    	private final String isbn;
+    	private final Handler client;
+    	
+    	public Request(String isbn, Handler client) {
+    		if (isbn == null) {
+    			throw new NullPointerException("isbn = null");
+    		}
+    		if (client == null) {
+    			throw new NullPointerException("client = null");
+    		}
+    		this.isbn = isbn;
+    		this.client = client;
+    	}
+    	
+    	private String getIsbn() {
+    		return isbn;
+    	}
+    	
+    	private Handler getClient() {
+    		return client;
+    	}
+    }
 }

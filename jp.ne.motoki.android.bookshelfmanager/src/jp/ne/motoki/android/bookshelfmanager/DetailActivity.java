@@ -1,5 +1,6 @@
 package jp.ne.motoki.android.bookshelfmanager;
 
+import jp.ne.motoki.android.bookshelfmanager.ContentsSearcher.Request;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -65,8 +66,9 @@ public class DetailActivity extends Activity {
         Intent intent = getIntent();
         String isbn = intent.getStringExtra("isbn");
         
+        Request request = new Request(isbn, CONTENTS_HANDLER);
         ContentsSearcher searchTask = new ContentsSearcher();
-        searchTask.execute(isbn, CONTENTS_HANDLER);
+        searchTask.execute(request);
     }
     
     public void onClickButtonDetail(View view) {
