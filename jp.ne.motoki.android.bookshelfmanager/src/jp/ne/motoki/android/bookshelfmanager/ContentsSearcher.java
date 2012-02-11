@@ -11,7 +11,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 
-public class SearchContentsTask extends AsyncTask<Object, Object, Contents> {
+public class ContentsSearcher extends AsyncTask<Object, Object, Contents> {
     
     private static final String URL_SEARCH_CONTENT =
         "https://www.googleapis.com/books/v1/volumes?q=%s";

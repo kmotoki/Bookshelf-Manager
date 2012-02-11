@@ -1,17 +1,13 @@
 package jp.ne.motoki.android.bookshelfmanager;
 
-import java.net.URL;
-import java.net.URLConnection;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -20,7 +16,7 @@ import android.widget.Toast;
 
 public class DetailActivity extends Activity {
 	
-	private final Handler HANDLER = new Handler() {
+	private final Handler CONTENTS_HANDLER = new Handler() {
 
 		@Override
 		public void handleMessage(Message msg) {
@@ -28,16 +24,26 @@ public class DetailActivity extends Activity {
 			Log.debug(msg.toString());
 			
 			Contents result = (Contents) msg.obj;
-			setTitle(result.getTitle());
-	        startDownloadingThumbnail(result.getThumbnailLink());
-	        if (result.hasBeenOwned()) {
-	        	// TODO
-	        	Toast.makeText(DetailActivity.this, "Yeah! direct hit!!", Toast.LENGTH_SHORT).show();
-	        } else {
+			if (result != null) {
+				setTitle(result.getTitle());
+		        startDownloadingThumbnail(result.getThumbnailLink());
+			} else {
 	        	Toast.makeText(DetailActivity.this, "Miss shot..", Toast.LENGTH_SHORT).show();
-	        }
+			}
 		}
 		
+	};
+	
+	private final Handler THUMBNAIL_HANDLER = new Handler() {
+		
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			Bitmap thumbnail = (Bitmap) msg.obj;
+			if (thumbnail != null) {
+				setThumbnail(thumbnail);
+			}
+		}
 	};
 
     @Override
@@ -59,8 +65,8 @@ public class DetailActivity extends Activity {
         Intent intent = getIntent();
         String isbn = intent.getStringExtra("isbn");
         
-        SearchContentsTask searchTask = new SearchContentsTask();
-        searchTask.execute(isbn, HANDLER);
+        ContentsSearcher searchTask = new ContentsSearcher();
+        searchTask.execute(isbn, CONTENTS_HANDLER);
     }
     
     public void onClickButtonDetail(View view) {
@@ -73,49 +79,23 @@ public class DetailActivity extends Activity {
     }
     
     private void startDownloadingThumbnail(String thumbnailLink) {
-        DownloadThumbnailTask downloadThumbnailTask = new DownloadThumbnailTask();
-        downloadThumbnailTask.execute(thumbnailLink);
-    }
-    
-    private Bitmap retrieveThumbnail(String thumbnailLink) throws Exception {
-        URL imageLink = new URL(thumbnailLink);
-        URLConnection conn = imageLink.openConnection();
-        return BitmapFactory.decodeStream(conn.getInputStream());
+        ThumbnailDownloader downloadThumbnailTask = new ThumbnailDownloader();
+        downloadThumbnailTask.execute(thumbnailLink, THUMBNAIL_HANDLER);
     }
     
     private void setThumbnail(Bitmap thumbnail) {
-        ImageView thumbnailView = new ImageView(DetailActivity.this);
+        ImageView thumbnailView = new ImageView(this);
         thumbnailView.setImageBitmap(thumbnail);
+        
+        ViewGroup thumbnailContainer = (ViewGroup) findViewById(R.id.thumbnail_container);
+        thumbnailContainer.removeAllViews();
+        thumbnailContainer.addView(thumbnailView);
     }
 
 	public boolean hasOwned(Contents result) {
 		// TODO Auto-generated method stub
 		return false;
 	}
-    
-    private class DownloadThumbnailTask extends AsyncTask<String, Object, Bitmap> {
-
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            try {
-                return retrieveThumbnail(params[0]);
-            } catch (Exception e) {
-                Log.error("Download thumbnail error", e);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            super.onPostExecute(result);
-            if (result == null) {
-                Log.error("bitmap is null");
-                return;
-            }
-            setThumbnail(result);
-        }
-        
-    }
     
 
 }

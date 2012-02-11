@@ -15,7 +15,7 @@ import org.json.JSONObject;
 import android.content.res.Resources;
 import android.test.InstrumentationTestCase;
 
-public class ContentInfoTest extends InstrumentationTestCase {
+public class ContentsTest extends InstrumentationTestCase {
     
     private JSONObject testObject = null;
 

@@ -135,7 +135,9 @@ public class Contents {
                 }
                 result.put(NAME_PAGE_COUNT, volumeInfo.get(NAME_PAGE_COUNT));
                 result.put(NAME_TITLE, volumeInfo.get(NAME_TITLE));
-                result.put(NAME_SUBTITLE, volumeInfo.get(NAME_SUBTITLE));
+                if (volumeInfo.has(NAME_SUBTITLE)) {
+                    result.put(NAME_SUBTITLE, volumeInfo.get(NAME_SUBTITLE));	
+                }
                 result.put(NAME_DESCRIPTION, volumeInfo.get(NAME_DESCRIPTION));
 
                 List<String> authors = new ArrayList<String>();
@@ -161,10 +163,26 @@ public class Contents {
     private static Date createPublishedDate(String text) {
         String[] parts = text.split("-");
         Calendar current = Calendar.getInstance();
-        current.set(
-            Integer.parseInt(parts[0]),
-            Integer.parseInt(parts[1]) - 1,
-            Integer.parseInt(parts[2]));
+        switch (parts.length) {
+	        case 3:
+	            current.set(
+	                    Integer.parseInt(parts[0]),
+	                    Integer.parseInt(parts[1]) - 1,
+	                    Integer.parseInt(parts[2]));
+	            break;
+	        case 2:
+	            current.set(
+	                    Integer.parseInt(parts[0]),
+	                    Integer.parseInt(parts[1]) - 1,
+	                    0);
+	        	break;
+	        case 1:
+	        	current.set(Integer.parseInt(parts[0]), 0, 0);
+	        	break;
+	        default:
+	        	throw new AssertionError("parts.length = " + parts.length);
+        	
+        }
         current.set(Calendar.HOUR, 0);
         current.set(Calendar.MINUTE, 0);
         current.set(Calendar.SECOND, 0);

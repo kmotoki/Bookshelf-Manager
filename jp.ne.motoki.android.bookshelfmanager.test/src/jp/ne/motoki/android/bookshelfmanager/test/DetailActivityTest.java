@@ -6,12 +6,12 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import android.widget.TextView;
 
-public class TestDetailActivity extends ActivityInstrumentationTestCase2<DetailActivity> {
+public class DetailActivityTest extends ActivityInstrumentationTestCase2<DetailActivity> {
     
     private static final String ISBN_JOEL_ON_SOFTWARE = "9784274066306";
     private static final String NAME_ISBN = "isbn";
 
-    public TestDetailActivity() {
+    public DetailActivityTest() {
         super("jp.ne.motoki.android.bookshelfmanager", DetailActivity.class);
 
         Intent intent = new Intent();
