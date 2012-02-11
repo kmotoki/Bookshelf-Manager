@@ -11,8 +11,8 @@
     
     <string name="detail">詳細</string>
     
-    <string name="status">選んでください</string>
-    <string-array name="status_array">
+    <string name="category">選んでください</string>
+    <string-array name="category_array">
         <item>気になる</item>
         <item>読み終わった</item>
         <item>読んでる</item>

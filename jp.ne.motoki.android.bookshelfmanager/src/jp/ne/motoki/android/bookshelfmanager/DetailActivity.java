@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,25 +26,18 @@ public class DetailActivity extends Activity {
     
     private static final String URL_SEARCH_CONTENT =
         "https://www.googleapis.com/books/v1/volumes?q=%s";
-    
-    private LinearLayout detailContainer = null;
-    private TextView titleView = null;
-    private View noImageView = null;
-    private Spinner statusSpinner = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.detail);
-        detailContainer = (LinearLayout) findViewById(R.id.detail_container);
-        titleView = (TextView) findViewById(R.id.title);
-        noImageView = findViewById(R.id.no_image);
-        statusSpinner = (Spinner) findViewById(R.id.status);
         
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this, R.array.status_array, android.R.layout.simple_spinner_item);
+                this, R.array.category_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        statusSpinner.setAdapter(adapter);
+        
+        Spinner categorySpinner = (Spinner) findViewById(R.id.category);
+        categorySpinner.setAdapter(adapter);
     }
     
     @Override
@@ -63,6 +55,7 @@ public class DetailActivity extends Activity {
     }
     
     private void setTitle(String title) {
+    	TextView titleView = (TextView) findViewById(R.id.title);
         titleView.setText(title);
     }
     
@@ -80,31 +73,27 @@ public class DetailActivity extends Activity {
     private void setThumbnail(Bitmap thumbnail) {
         ImageView thumbnailView = new ImageView(DetailActivity.this);
         thumbnailView.setImageBitmap(thumbnail);
-        detailContainer.removeView(noImageView);
-        detailContainer.addView(thumbnailView, 1);
-        // remove reference
-        noImageView = null;
     }
 
-	public boolean hasOwned(ContentInfo result) {
+	public boolean hasOwned(Contents result) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-    private class SearchContentsTask extends AsyncTask<String, Object, ContentInfo> {
+    private class SearchContentsTask extends AsyncTask<String, Object, Contents> {
 
         @Override
-        protected ContentInfo doInBackground(String... params) {
+        protected Contents doInBackground(String... params) {
             try {
                 return retrieveContentInfo(params[0]);
-            } catch (ContentInfoNotFoundException e) {
+            } catch (ContentsNotFoundException e) {
                 Log.error("Exception in doInBackground", e);
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(ContentInfo result) {
+        protected void onPostExecute(Contents result) {
             super.onPostExecute(result);
             if (result == null) {
             	// TODO bad stady
@@ -121,8 +110,8 @@ public class DetailActivity extends Activity {
             }
         }
         
-        private ContentInfo retrieveContentInfo(String isbn)
-        		throws ContentInfoNotFoundException {
+        private Contents retrieveContentInfo(String isbn)
+        		throws ContentsNotFoundException {
             URL url;
     		try {
     			url = new URL(String.format(URL_SEARCH_CONTENT, isbn));
@@ -136,9 +125,9 @@ public class DetailActivity extends Activity {
     	        }
     	        JSONObject jsonObject = new JSONObject(sb.toString());
     	        
-    	        return new ContentInfo(jsonObject);
+    	        return new Contents(jsonObject);
     		} catch (Exception e) {
-    			throw new ContentInfoNotFoundException(e);
+    			throw new ContentsNotFoundException(e);
     		}
         }
     }

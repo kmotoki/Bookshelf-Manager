@@ -10,7 +10,6 @@ package jp.ne.motoki.android.bookshelfmanager;
 public final class R {
     public static final class array {
         public static final int category_array=0x7f050000;
-        public static final int status_array=0x7f050001;
     }
     public static final class attr {
     }
@@ -50,6 +49,7 @@ public final class R {
         public static final int barcode=0x7f040002;
         public static final int button_cancel=0x7f040009;
         public static final int button_register=0x7f040008;
+        public static final int category=0x7f04000d;
         public static final int default_title=0x7f04000a;
         public static final int detail=0x7f04000c;
         public static final int hello=0x7f040000;
@@ -58,6 +58,5 @@ public final class R {
         public static final int label_detail=0x7f040006;
         public static final int label_title=0x7f040007;
         public static final int settings=0x7f040005;
-        public static final int status=0x7f04000d;
     }
 }

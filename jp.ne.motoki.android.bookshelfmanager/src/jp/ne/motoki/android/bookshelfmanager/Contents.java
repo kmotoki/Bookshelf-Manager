@@ -12,7 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ContentInfo {
+public class Contents {
     
     private static final String NAME_ITEMS = "items";
     private static final String NAME_VOLUME_INFO = "volumeInfo";
@@ -48,7 +48,7 @@ public class ContentInfo {
      * 
      * @param jsonObject
      */
-    public ContentInfo(JSONObject jsonObject) {
+    public Contents(JSONObject jsonObject) {
         
         try {
             Log.debug(jsonObject.toString(2));
