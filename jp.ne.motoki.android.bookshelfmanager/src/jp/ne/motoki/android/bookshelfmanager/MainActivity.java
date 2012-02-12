@@ -44,8 +44,10 @@ public class MainActivity extends Activity {
                     new Intent(getApplicationContext(), DetailActivity.class);
                 callDetailActivity.putExtra("result", result);
                 
-                dialog.dismiss();
-                dialog = null;
+                if (dialog != null) {
+                    dialog.dismiss();
+                    dialog = null;
+                }
                 
                 startActivity(callDetailActivity);
             } else {
