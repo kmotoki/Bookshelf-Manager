@@ -1,9 +1,13 @@
 package jp.ne.motoki.android.bookshelfmanager.test;
 
+import java.lang.reflect.Field;
+
 import jp.ne.motoki.android.bookshelfmanager.DetailActivity;
+import jp.ne.motoki.android.bookshelfmanager.test.mock.MockVolume;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
 import android.test.ActivityInstrumentationTestCase2;
-import android.util.Log;
 import android.widget.TextView;
 
 public class DetailActivityTest extends ActivityInstrumentationTestCase2<DetailActivity> {
@@ -19,21 +23,25 @@ public class DetailActivityTest extends ActivityInstrumentationTestCase2<DetailA
         setActivityIntent(intent);
     }
     
-    public void testGetJSONObject() {
-        TextView titleView = (TextView) getActivity().findViewById(
+    @Override
+    public void setUp() throws Exception {
+        Class<?> clazz = DetailActivity.class;
+        Field handlerField = clazz.getDeclaredField("CONTENTS_HANDLER");
+        
+        handlerField.setAccessible(true);
+        
+        Message message = Message.obtain((Handler) handlerField.get(getActivity()));
+        message.obj = new MockVolume();
+        
+        message.sendToTarget();
+    }
+    
+    public void testTest() {
+        getInstrumentation().waitForIdleSync();
+        
+        DetailActivity target = getActivity();
+        TextView titleView = (TextView) target.findViewById(
                 jp.ne.motoki.android.bookshelfmanager.R.id.title);
-        //titleView.seton
-        for (int i = 0; i < 10; i++) {
-            if (titleView.getText().length() == 0) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Log.e("test", "Interrupted", e);
-                }
-            } else {
-                assertEquals(titleView.getText(), "Joel on Software");
-            }
-            fail("timeout");
-        }
+        assertEquals(titleView.getText(), "title");
     }
 }

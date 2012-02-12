@@ -1,8 +1,13 @@
 package jp.ne.motoki.android.bookshelfmanager;
 
+import jp.ne.motoki.android.bookshelfmanager.ContentsSearcher.Request;
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,6 +28,32 @@ public class MainActivity extends Activity {
     static {
         INTENT_BARCODE_READER.putExtra("SCAN_MODE", "ONE_D_MODE");
     }
+    
+    private ProgressDialog dialog = null;
+    
+    private final Handler CONTENTS_HANDLER = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Log.debug(msg.toString());
+            
+            String result = (String) msg.obj;
+            if (result != null) {
+                Intent callDetailActivity =
+                    new Intent(getApplicationContext(), DetailActivity.class);
+                callDetailActivity.putExtra("result", result);
+                
+                dialog.dismiss();
+                dialog = null;
+                
+                startActivity(callDetailActivity);
+            } else {
+                Toast.makeText(MainActivity.this, "Miss shot..", Toast.LENGTH_SHORT).show();
+            }
+        }
+        
+    };
     
     /** Called when the activity is first created. */
     @Override
@@ -51,10 +82,11 @@ public class MainActivity extends Activity {
             Log.debug(EXTRA_SCAN_RESULT_FORMAT + " = " +
                     bundle.getString(EXTRA_SCAN_RESULT_FORMAT));
             
-            Intent callDetailActivity =
-                new Intent(getApplicationContext(), DetailActivity.class);
-            callDetailActivity.putExtra("isbn", isbn);
-            startActivity(callDetailActivity);
+            dialog = new MyProgressDialog(this);
+            dialog.show();
+            
+            ContentsSearcher contentsSearcher = new ContentsSearcher();
+            contentsSearcher.execute(new Request(isbn, CONTENTS_HANDLER));
         }
     }
 
@@ -94,5 +126,14 @@ public class MainActivity extends Activity {
     
     private void onAboutThisAppOptionSelected() {
         Toast.makeText(this, "onAboutThisAppOptionSelected", Toast.LENGTH_SHORT).show();
+    }
+    
+    private static class MyProgressDialog extends ProgressDialog {
+
+        public MyProgressDialog(Context context) {
+            super(context);
+            setMessage("Now searching...");
+        }
+        
     }
 }

@@ -1,6 +1,8 @@
 package jp.ne.motoki.android.bookshelfmanager;
 
-import jp.ne.motoki.android.bookshelfmanager.ContentsSearcher.Request;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -16,24 +18,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class DetailActivity extends Activity {
-	
-	private final Handler CONTENTS_HANDLER = new Handler() {
-
-		@Override
-		public void handleMessage(Message msg) {
-			super.handleMessage(msg);
-			Log.debug(msg.toString());
-			
-			Contents result = (Contents) msg.obj;
-			if (result != null) {
-				setTitle(result.getTitle());
-		        startDownloadingThumbnail(result.getThumbnailLink());
-			} else {
-	        	Toast.makeText(DetailActivity.this, "Miss shot..", Toast.LENGTH_SHORT).show();
-			}
-		}
-		
-	};
 	
 	private final Handler THUMBNAIL_HANDLER = new Handler() {
 		
@@ -64,11 +48,17 @@ public class DetailActivity extends Activity {
     protected void onStart() {
     	super.onStart();
         Intent intent = getIntent();
-        String isbn = intent.getStringExtra("isbn");
-        
-        Request request = new Request(isbn, CONTENTS_HANDLER);
-        ContentsSearcher searchTask = new ContentsSearcher();
-        searchTask.execute(request);
+        String result = intent.getStringExtra("result");
+        JSONObject jsonObject;
+        try {
+            jsonObject = new JSONObject(result);
+            Volume volume = new GBSVolume(jsonObject);
+            setTitle(volume.getTitle());
+            startDownloadingThumbnail(volume.getThumbnailLink());
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
     
     public void onClickButtonDetail(View view) {
@@ -94,7 +84,7 @@ public class DetailActivity extends Activity {
         thumbnailContainer.addView(thumbnailView);
     }
 
-	public boolean hasOwned(Contents result) {
+	public boolean hasOwned(GBSVolume result) {
 		// TODO Auto-generated method stub
 		return false;
 	}

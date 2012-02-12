@@ -1,19 +1,17 @@
 package jp.ne.motoki.android.bookshelfmanager;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
 import jp.ne.motoki.android.bookshelfmanager.ContentsSearcher.Request;
-
-import org.json.JSONObject;
-
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 
-public class ContentsSearcher extends AsyncTask<Request, Object, Contents> {
+public class ContentsSearcher extends AsyncTask<Request, Object, String> {
     
     private static final String URL_SEARCH_CONTENT =
         "https://www.googleapis.com/books/v1/volumes?q=%s";
@@ -21,18 +19,18 @@ public class ContentsSearcher extends AsyncTask<Request, Object, Contents> {
     private Handler client = null;
 
 	@Override
-	protected Contents doInBackground(Request... params) {
+	protected String doInBackground(Request... params) {
 		client = params[0].getClient();
         try {
             return retrieveContentInfo(params[0].getIsbn());
-        } catch (ContentsNotFoundException e) {
+        } catch (IOException e) {
             Log.error("Exception in doInBackground", e);
         }
         return null;
 	}
 
     @Override
-    protected void onPostExecute(Contents result) {
+    protected void onPostExecute(String result) {
         super.onPostExecute(result);
         if (result == null) {
         	// TODO bad stady
@@ -45,10 +43,8 @@ public class ContentsSearcher extends AsyncTask<Request, Object, Contents> {
         
     }
     
-    private Contents retrieveContentInfo(String isbn)
-    		throws ContentsNotFoundException {
+    private String retrieveContentInfo(String isbn) throws IOException {
         URL url;
-		try {
 			url = new URL(String.format(URL_SEARCH_CONTENT, isbn));
 	        URLConnection urlConnection = url.openConnection();
 	        BufferedReader br = new BufferedReader(
@@ -58,12 +54,8 @@ public class ContentsSearcher extends AsyncTask<Request, Object, Contents> {
 	        while((line = br.readLine()) != null) {
 	            sb.append(line);
 	        }
-	        JSONObject jsonObject = new JSONObject(sb.toString());
 	        
-	        return new Contents(jsonObject);
-		} catch (Exception e) {
-			throw new ContentsNotFoundException(e);
-		}
+	        return sb.toString();
     }
 
     public static class Request {

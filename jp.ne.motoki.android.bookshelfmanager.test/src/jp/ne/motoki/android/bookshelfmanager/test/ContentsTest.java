@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Calendar;
 
-import jp.ne.motoki.android.bookshelfmanager.Contents;
+import jp.ne.motoki.android.bookshelfmanager.GBSVolume;
 import jp.ne.motoki.android.bookshelfmanager.Log;
 
 import org.json.JSONException;
@@ -35,7 +35,7 @@ public class ContentsTest extends InstrumentationTestCase {
     }
 
     public void testConstructFromJSONObject() throws JSONException {
-        Contents testTarget = new Contents(testObject);
+        GBSVolume testTarget = new GBSVolume(testObject);
         
         assertEquals(testTarget.getIsbn10(), "4822284476");
         assertEquals(testTarget.getIsbn13(), "9784822284473");
